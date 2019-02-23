@@ -1,0 +1,84 @@
+下载ActiveMQ
+进入/tmp目录
+cd /tmp
+使用wget下载存档
+yum install wget
+wget -c http://mirrors.she.edu.cn/apache/avtivemq/5.15.8/acpache-activemq-5.15.8-bin.tar.gz
+提取存档
+tar -xzvf apache-activemq-5.15.8-bin.tar.gz -C /var
+修改ActiveMQ的目录名
+mv /var/apache-activemq-5.15.8/ /var/activemq/
+
+启动ActiveMQ
+作为后台进程启动ActiveMQ
+./bin/activemq start
+停止ActiveMQ
+./bin/activemq stop
+
+ActiveMQ服务
+前面是用命令行运行ActiveMQ，但最好的方式是将ActiveMQ作为服务启动，
+使用system服务将可以确保ActiveMQ能在系统启动时自动启动
+
+创建ActiveMQ服务
+1.使用vim创建一个systemd服务文件
+vi /usr/lib/systemd/system/activemq.service
+2.填入以下内容
+[Unit]
+Description=ActiveMQ service
+After=network.target
+[Service]
+Type=forking
+ExecStart=/var/activemq/bin/activemq start
+ExecStop=/var/activemq/bin/activemq stop
+User=root
+Group=root
+Restart=always
+RestartSec=9
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=activemq
+[Install]
+WantedBy=multi-user.target
+3.修改/var/activemq/bin/env配置，在配置文件
+#Location of the Java installation
+JAVA_HOME=""
+JAVACMD="auto"
+
+启动ActiveMQ服务
+systemctl start activemq
+查看服务状态
+systemctl status activemq
+设置开机自动启动
+In -s /usr/lib/systemd/system/activemq.service/etc/systemd/system/multi-user.target.wants/activemq.service
+systemctl enable activemq
+防火墙添加ActiveMQ的端口
+ActiveMQ启动后，外部还无法访问，还需要在防火墙配置中增加ActiveMQ的Web管理观看和通讯端口
+添加端口
+#Web管理端口默认为8161，通讯端口默认为61616
+firewall-cmd --zone=public --add-port=8161/tcp --permanent
+firewall-cmd --zone=public --add-port=61616/tcp --permanent
+重启防火墙
+systemctl restart firewalld.service
+
+使用ActiveMQ的Web管理平台
+ActiveMQ自带有管理平台，在浏览器访问http://服务IP:8161/admin即可进入
+账号/密码：admin/admin
+
+Web管理配置
+ActiveMQ的Web管理平台是基于jetty运行，因此在/var/activemq/conf目录可以看到jetty的配置文件
+修改管理平台的默认端口，在/var/activemq/conf/jetty.xml中
+在Java中使用ActiveMQ
+在activemq的根目录有activemq-all-5.*.*。jar包，将其直接复制到工程即可
+Maven依赖
+<dependency>
+    <groupId>org.apache.avtivemq</groupId>
+    <artifactId>activemq-all</artifactId>
+    <version>5.15.8</version>
+</dependency>
+
+在Spring中使用ActiveMQ
+http://spring.io/guides/gs/messageing-jms/
+
+使用命令
+whereis java
+
