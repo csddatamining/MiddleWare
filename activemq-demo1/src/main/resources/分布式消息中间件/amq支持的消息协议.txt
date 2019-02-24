@@ -48,9 +48,11 @@ JAVACMD="auto"
 systemctl start activemq
 查看服务状态
 systemctl status activemq
+创建软链接
+ln -s /usr/lib/systemd/system/activemq.service/etc/systemd/system/multi-user.target.wants/activemq.service
 设置开机自动启动
-In -s /usr/lib/systemd/system/activemq.service/etc/systemd/system/multi-user.target.wants/activemq.service
 systemctl enable activemq
+检测是否开启成功（enable）：systemctl list-unit-files |grep activemq
 防火墙添加ActiveMQ的端口
 ActiveMQ启动后，外部还无法访问，还需要在防火墙配置中增加ActiveMQ的Web管理观看和通讯端口
 添加端口
@@ -68,7 +70,7 @@ Web管理配置
 ActiveMQ的Web管理平台是基于jetty运行，因此在/var/activemq/conf目录可以看到jetty的配置文件
 修改管理平台的默认端口，在/var/activemq/conf/jetty.xml中
 在Java中使用ActiveMQ
-在activemq的根目录有activemq-all-5.*.*。jar包，将其直接复制到工程即可
+在activemq的根目录有activemq-all-5.*.*.jar包，将其直接复制到工程即可
 Maven依赖
 <dependency>
     <groupId>org.apache.avtivemq</groupId>
