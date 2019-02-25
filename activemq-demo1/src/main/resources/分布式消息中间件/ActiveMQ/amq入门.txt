@@ -1,3 +1,54 @@
+一、ActiveMQ是什么
+Apache出品，最流行的，能力强劲的开源消息总线
+一个完全支持JMS1.1和J2EE1.4规范的JMS Provider实现，尽管JMS规范出台很久，但JMS在当今J2EE应用中仍然扮演着特殊地位
+
+二、JMS规范
+Java消息服务应用程序接口是一个Java平台中关于面向消息中间件（MOM）的API，用于两个应用程序之间，或分布式系统中发送消息，
+进行异步通信。Java消息服务是一个与具体平台无关的API
+
+JMS的对象模型
+ConnectionFactory   连接工厂
+Session     会话
+Destination    目的
+MessageProducer     生产者
+MessageConsumer     消费者
+Broker              消息中间件的示例（ActiveMQ）
+
+JMS的消息模型
+Point-to-Point（P2P）点对点
+Publish/Subscribe(Pub/Sub) 主题 发布订阅
+
+JMS的消息结构
+消息头-消息属性-消息体
+
+JMSDestination
+JMSDeliveryMode
+JMSTimestamp
+JMSException
+JMSPriority
+JMSMessageID
+JMSReplyTo
+JMSCorrelationID
+JMSType
+JMSRedelivered
+
+消息属性可以理解为消息的附加消息头，属性名可以自定义
+属性值类型：boolean、byte、int、long、float、double、String
+BytesMessage
+MapMessage
+ObjectMessage
+StreamMessage
+TextMessage
+
+三、ActiveMQ的特性
+1.支持多种编程语言
+2.支持多种传输协议
+3.有多种持久化方式
+
+安装ActiveMQ
+    环境准备：下载ActiveMQ http://activemq.apache.org/download.html
+
+四、ActiveMQ如何安装
 下载ActiveMQ
 进入/tmp目录
 cd /tmp
@@ -9,6 +60,8 @@ tar -xzvf apache-activemq-5.15.8-bin.tar.gz -C /var
 修改ActiveMQ的目录名
 mv /var/apache-activemq-5.15.8/ /var/activemq/
 
+
+五、ActiveMQ如何使用
 启动ActiveMQ
 作为后台进程启动ActiveMQ
 ./bin/activemq start
@@ -83,4 +136,7 @@ http://spring.io/guides/gs/messageing-jms/
 
 使用命令
 whereis java
+
+
+
 
