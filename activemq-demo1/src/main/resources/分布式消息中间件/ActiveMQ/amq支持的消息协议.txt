@@ -17,7 +17,16 @@ tcp://hostname:port?key=value
 TCP配置参数说明
 在服务器端配置时，参数要以"transport."开头
 在客户端连接时，参数省略"transport."前缀
-
+服务器端配置示例：
+tcp://localhost:61616?transport.threadName&transport.trace=false&transport.soTimeout=60000
+客户端配置示例：
+tcp://localhost:61616?threadName&trace=false&soTimeout=60000
+SSL
+需要一个安全连接的时候可以考虑使用SSL，适用于client和broker在公网的情况
+如使用aws云平台等
+http://activemq.apache.org/ssl-transport-reference.html
+SSL配置格式，可配置参数与TCP相同
+ssl://localhost:61616
 三、OpenWire协议
 
 
