@@ -134,8 +134,14 @@ Maven依赖
 在Spring中使用ActiveMQ
 http://spring.io/guides/gs/messageing-jms/
 
-使用命令
+使用命令查看Java安装路径
 whereis java
+
+日志存放地址：
+/var/activemq/data
+
+查看日志：
+tail -f activemq.log
 
 
 

@@ -10,6 +10,8 @@ ActiveMQ的协议连接配置
 在${ACTIVEMQ_HOMT}/conf/activemq.xml中，通过配置<transportConnectors>就可以使用多种传输方式
 
 常用的传输方式及配置
+tcp、udp、ssl、nio、vm、http
+
 TCP
 由于TCP具有可靠传输的特性，它在ActiveMQ中也是最常用使用的一种协议。在默认的配置中，TCP连接的端口为61616
 TCP配置格式
@@ -19,6 +21,8 @@ TCP配置参数说明
 在客户端连接时，参数省略"transport."前缀
 
 三、OpenWire协议
+Apache的一种跨语言协议，允许从不同的语言和平台访问ActiveMQ，是ActiveMQ4.X以后的版本默认的传输协议。
+客户端和服务端都通过前缀"wireFormat."表示
 
 
 四、MQTT协议
