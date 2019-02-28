@@ -1,5 +1,60 @@
-ActiveMQ高可用集群方案介绍
-Master-Slave部署方式
-Broker-Cluster部署方式
-Master-Slave与Broker-Cluster相结合的部署方式
-networkConnector网络连接器配置说明
+一、ActiveMQ高可用集群方案介绍
+eg:发送一封邮件/凌晨执行代码，通过任务调度，单个系统可以通过任务调度简单实现，但如果跨系统，通知其他系统执行这件事，
+需要通过消息传递，a系统向b系统发送一条消息，通过mq进行发送，使用延时消息
+如果服务器没有实现高可用，就可能出现问题，即服务器挂了，到点并未执行。
+实现延时消息，需要在服务器端的conf/activemq.xml进行配置
+1.在<broke>节点配置 schedulerSupport="true"
+2.修改消息发送Producer
+延时消息调度文档：http://activemq.apache.org/delay-and-schedule-message-delivery.html
+
+
+二、Master-Slave主从部署方式
+解决的是故障切换，单点故障的问题
+Shared filesystem Master-Slave部署方式
+Shared database Master-Slave方式
+部署多台机器但是文件系统是共享的
+activemq数据库集群步骤：
+1.ActiveMQ目录/lib/extra下放入数据库驱动包mysql-connector-java-版本.jar
+2.修改ActiveMQ让所有消息存储放入jdbc中：
+    cat conf/activemq.xml
+    修改broker节点增加持久化persistent="true"
+    修改persistenceAdapter持久化适配器节点,指定mysql数据源
+    修改bean节点的mysql-ds
+3.将部署好的服务器环境完整拷贝到其他服务器：将activemq直接全盘复制
+
+支持故障切换
+
+
+三、Broker-Cluster部署方式
+增加节点配置networkConnector
+基于两台同等的broker之间建立连接通道，连接之后相互进行消息读取，队列信息同步，实现负载均衡
+两种部署方式：
+静态部署：在${ACTIVEMQ_HOME}/conf/activemq.xml中静态指定Broker需要桥连接的其他Broker
+    1.所有节点中添加networkConnector节点，uri地址为集群内其他信息节点
+    <networkConnectors>
+          <networkConnector uri="static:(tcp://host1:61616,tcp://host2:61616,tcp://..)"/>
+    </networkConnectors>
+    2.所有的broker都启动后，可以在web管理界面的Network页面可以看到连接信息
+动态部署：在${ACTIVEMQ_HOME}/conf/activemq.xml中静态指定Broker需要桥连接的其他Broker
+        由activemq启动后动态查找。（基于multicast技术，确保网络互通）
+    1.首先在Broker节点中添加networkConnector节点
+        <networkConnectors>
+          <networkConnector uri="multicast://default"/>
+        </networkConnectors>
+    2.修改transportConnect，增加discoveryUri属性，并添加publishedAddressPolicy
+    <transportConnector name="openwire" uri="tcp://0.0.0.0:61616?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600 discoveryUri="multicast://default">
+        <publishedAddressPolicy>
+            <publishedAddressPolicy publishedHostStrategy="IPADDRESS"></publishedAddressPolicy>
+        </publishedAddressPolicy>
+    </transportConnector>
+
+四、Master-Slave与Broker-Cluster相结合的部署方式
+修改${ACTIVEMQ_HOME}/conf/activemq.xml
+在Broker节点中添加多个networkConnector，连接到多个broker集群
+    <networkConnectors>
+          <networkConnector uri="masterslave:(tcp://host1:61616,tcp://host2:61616,tcp://..)" duplex=false/>
+          <networkConnector uri="masterslave:(tcp://host1:61616,tcp://host2:61616,tcp://..)" duplex=false/>
+    </networkConnectors>
+
+五、networkConnector网络连接器配置说明
+
