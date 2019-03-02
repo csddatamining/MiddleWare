@@ -1,0 +1,41 @@
+一、ActiveMQ持久化方案介绍
+ActiveMQ的消息持久化机制有JDBC、AMQ，KahaDB和LevelDB，无论使用哪种持久化方式，消息的存储逻辑都是一致的
+ActiveMQ持久化机制
+1.Queue类型的持久化机制
+    Producer发送至ActiveMQ存储后，由Consumer消费成功即删除
+2.Topic类型的持久化机制
+    保存不同订阅者的处理进度，定期删除策略
+
+二、JDBC方式
+将消息存储到数据库中，例如：Mysql、SQL Server、Oracle等
+优点：方便管理，可支持强一致性
+缺陷：性能低
+
+三、AMQ方式
+基于文件的存储方式，具有写入速度快和容易恢复的特点
+优点：性能高于JDBC
+缺点：重建索引时间过长，而且索引文件占用磁盘空间过大，所以不推荐使用
+
+四、KahaDB方式
+ActiveMQ5.4开始默认的持久化方式，kahaDb恢复时间远小于其前身AMQ并且使用更少的数据文件，所以可以完全替代AMQ
+
+五、LevelDB方式
+Google开发的一套可用于持久化数据的高性能类库。
+LevelDB并不是一种服务，用户需要自行实现Server。是单进程的服务，能够处理十亿级别规模Key-Value型数据，占用内存小
+基于KV存储
+Key值有序存储
+操作接口简单
+支持数据快照
+支持数据压缩
+
+六、事务机制
+收到消息保证消息收到
+接收消息三个阶段：
+客户端收到消息
+客户端处理消息
+客户端告诉消息处理完毕
+
+ActiveMQ事务实现机制
+Producer        action：commit/rollback
+Consumer        action:commit/rollback
+
