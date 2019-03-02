@@ -1,0 +1,6 @@
+简介
+Kafka是linkedin使用Scala编写具有高水平扩展和高吞吐量的分布式消息系统
+Kafka对消息保存时根据Topic进行归类，发送消息者成为Producer，消息接收者成为Consumer
+此外Kafka集群有多个kafka实例组成，每个实例（Server）称为broker
+无论是Kafka集群，还是producer和consumer都是依赖于zookeeper来保证系统可用性，为集群保存一些meta信息
+
