@@ -4,3 +4,15 @@ Kafka对消息保存时根据Topic进行归类，发送消息者成为Producer�
 此外Kafka集群有多个kafka实例组成，每个实例（Server）称为broker
 无论是Kafka集群，还是producer和consumer都是依赖于zookeeper来保证系统可用性，为集群保存一些meta信息
 
+主流MQ对比
+                    ActiveMQ        RabbitMQ                  Kafka
+所属社区/公司     Apache          Mozilla public License      Apache/LinkIn
+开发语言            Java            Erlang                    Java
+支持的协议       OpenWire、STOMP      AMQP                    仿AMQP
+                REST、XMPP、AMQP
+事务              支持              不支持                     不支持
+集群              支持              支持                       支持
+负载均衡          支持              支持                       支持
+动态扩容          不支持            不支持                     支持(zk)
+
+
