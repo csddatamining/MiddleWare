@@ -13,11 +13,12 @@ import java.util.concurrent.TimeoutException;
 public class Consumer {
 
     private static Runnable receive = new Runnable() {
+        @Override
         public void run() {
             // 1、创建连接工厂
             ConnectionFactory factory = new ConnectionFactory();
             // 2、设置连接属性
-            factory.setHost("192.168.100.242");
+            factory.setHost("10.19.80.36");
             factory.setUsername("admin");
             factory.setPassword("admin");
 
@@ -41,12 +42,14 @@ public class Consumer {
 
                 // 定义消息接收回调对象
                 DeliverCallback callback = new DeliverCallback() {
+                    @Override
                     public void handle(String consumerTag, Delivery message) throws IOException {
                         System.out.println(clientName + " 收到消息：" + new String(message.getBody(), "UTF-8"));
                     }
                 };
                 // 监听队列
                 channel.basicConsume(queueName, true, callback, new CancelCallback() {
+                    @Override
                     public void handle(String consumerTag) throws IOException {
                     }
                 });

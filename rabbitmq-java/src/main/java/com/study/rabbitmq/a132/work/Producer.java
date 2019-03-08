@@ -16,7 +16,7 @@ public class Producer {
         // 1、创建连接工厂
         ConnectionFactory factory = new ConnectionFactory();
         // 2、设置连接属性
-        factory.setHost("192.168.100.242");
+        factory.setHost("10.19.80.36");
         factory.setUsername("admin");
         factory.setPassword("admin");
 

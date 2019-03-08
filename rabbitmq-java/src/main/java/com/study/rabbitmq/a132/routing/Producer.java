@@ -9,7 +9,7 @@ import java.util.concurrent.TimeoutException;
 
 /**
  * Topic--生产者
- *
+ * <p>
  * 生产者将消息发送到topic类型的交换器上，和routing的用法类似，都是通过routingKey路由，但topic类型交换器的routingKey支持通配符
  */
 public class Producer {
@@ -18,7 +18,7 @@ public class Producer {
         // 1、创建连接工厂
         ConnectionFactory factory = new ConnectionFactory();
         // 2、设置连接属性
-        factory.setHost("192.168.100.242");
+        factory.setHost("10.19.80.36");
         factory.setPort(5672);
         factory.setUsername("admin");
         factory.setPassword("admin");

@@ -5,3 +5,30 @@ Transport Layer：位于最底层，主要传输二进制数据流，提供帧�
 Session Layer：位于中间层，主要负责将客户端的命令发送给服务器，再将服务器端的应答返回给客户端，主要为客户端与服务器之间的通信
 提供可靠性同步机制和错误处理
 Module Layer：位于最高层，主要定义了一些供客户端调用的命令，客户端可以利用这些命令实现自己的业务逻辑
+
+
+AMQP生产者流转过程
+1.建立连接
+2.开启通道
+3.发送消息
+4.释放资源
+AMQP消费者流转流程
+1.建立连接
+2.开启通道
+3.准备接收消息
+4.broker推送消息
+5.发送确认
+6.释放资源
+
+RabbitMQ核心概念
+broker
+虚拟主机
+queue
+生产者
+connection
+channel：建立在connection基础之上，可以有多个
+消息：body、label、queue、routeKey
+exchange:交换机、fanout、direct、topic、headers。默认交换机
+bind：bindKey、com.#、*.order
+
+
