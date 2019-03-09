@@ -21,14 +21,57 @@ AMQP消费者流转流程
 6.释放资源
 
 RabbitMQ核心概念
-broker
-虚拟主机
-queue
-生产者
-connection
-channel：建立在connection基础之上，可以有多个
+Broker：消息中间件的服务节点
+    对于RabbitMQ来说，一个RabbitMQ Broker可以简单地看作一个RabbitMQ服务节点，或者RabbitMQ服务实例。也可将一个RabbitMQ Broker看作一台RabbitMQ服务器
+Virtual Host：虚拟主机，表示一批交换器、消息队列和相关对象
+    虚拟主机是共享相同的身份认证和加密环境的独立服务器域
+    每个vhost本质上就是一个mini版的RabbitMQ服务器，拥有自己的队列、交换器、绑定和权限机制
+    vhost是AMQP概念的基础，必须在连接时指定，RabbitMQ默认的vhost是/
+RoutingKey：路由键，生产者将消息发给交换器的时候，一般会指定RoutingKey，用来指定这个消息的路由规则
+    BindingKey需要与交换器类型和绑定键联合使用
+Producer生产者：投递消息的一方。生产者创建消息，然后发布到RabbitMQ中
+Consumer消费者：接受消息的一方。消费者连接到RabbitMQ服务器，并订阅到队列上，当消费者消费一条消息时，只是消费消息的消息体（payload），
+                在消息路由的过程中，消息的标签会丢弃，存入到队列中的消息只有消息体，消费者也只会消费到消息体，也就不知道消息的生产者是谁
+channel：建立在connection基础之上的一种轻量级链接，可以有多个
+    大部分的操作是在Channel这个接口中完成的，包括定义队列的声明exchangeDeclare、队列的绑定queueBind、发布消息basicPublish、消费消息basicConsume
 消息：body、label、queue、routeKey
-exchange:交换机、fanout、direct、topic、headers。默认交换机
+Exchange:交换器，生产者将消息发送到Exchange，由交换器将消息路由到一个或多个队列中。
+    fanout：把所有发送到该交换器的消息路由到所有与该交换器绑定的队列中
+    direct：把消息路由到那些BindingKey和RoutingKey完全匹配的队列中
+    topic：与direct类似，但可以通过通配符进行模糊匹配
+    headers：不依赖与路由键的匹配规则来路由消息，根据发送的消息内容中headers属性进行匹配，默认交换机
+
 bind：bindKey、com.#、*.order
 
 
+RabbitMQ核心概念
+Producer将消息发送到Exchange，Exchange分发到Queue，Queue对应到消费者
+
+消息一般可以包含两个部分：消息体和附加信息
+消息体（payload）：
+在实际应用中，消息体一般是一个带有业务逻辑结构的数据，比如一个Json字符串
+附加信息：
+用来表述这条消息，比如目标交换器的名称，路由键和一些自定义属性等
+
+运转流程
+Producer业务数据--可能的序列化--》序列化之后的数据--指定Exchange和RoutingKey等，即为消息添加Label--》消息--发送到Broker中--》
+Broker--Consumer订阅并接受消息--》消息--可能的反序列化--》反序列化后的数据--》接受的业务方数据--》业务处理
+
+RabbitMQ运转流程
+生产者发送消息的过程：
+1.生产者连接到RabbitMQ Broker，建立一个连接（Connection），开启一个信道（Channel）
+2.生产者声明一个交换器，并设置相关属性，比如交换机类型、是否持久化等
+3.生产者声明一个队列并设置相关属性，比如是否排他、是否持久化、是否自动删除等
+4.生产者通过路由键将交换器和队列绑定起来
+5.生产者发送消息至RabbitMQ Broker，其中包含路由键、交换器等信息
+6.响应的交换器根据接收到的路由键查找相匹配的队列
+7.如果找到，则将从生产者发送过来的消息存入相应的队列中
+8.如果没有找到，则根据生产者配置的属性选择丢弃还是回退给生产者
+9.关闭信道、关闭连接
+消费者接受消息过程：
+1.生产者连接到RabbitMQ Broker，建立一个连接（Connection），开启一个信道（Channel）
+2.消费者向RabbitMQ Broker请求消费相应队列中的消息，可能会设置相应的回调函数，以及做一些准备工作
+3.等待RabbitMQ Broker回应并投递相应队列中的消息，消费者接收消息
+4.消费者确认（ack）接收到的消息
+5.RabbitMQ从队列中删除相应已经被确认的消息
+6.关闭信道、关闭连接
