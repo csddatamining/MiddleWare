@@ -49,6 +49,7 @@ public class Producer {
                  * 重连成功后的回调
                  * @param recoverable
                  */
+                @Override
                 public void handleRecovery(Recoverable recoverable) {
                     System.out.println(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SS").format(new Date()) + " 已重新建立连接！");
                 }
@@ -57,6 +58,7 @@ public class Producer {
                  * 开始重连时的回调
                  * @param recoverable
                  */
+                @Override
                 public void handleRecoveryStarted(Recoverable recoverable) {
                     System.out.println(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SS").format(new Date()) + " 开始尝试重连！");
                 }

@@ -1,0 +1,95 @@
+发生任何功能异常，可以在该目录下排查问题
+cd /var/log/rabbitmq
+
+常用管理命令
+rabbitmqctl status
+查看及节点状态
+rabbitmqctl stop [pid_file]
+停止运行RabbitMQ的Erlang虚拟机和RabbitMQ服务应用
+
+应用管理
+rabbitmqctl stop_app
+停止RabbitMQ服务应用，但是Erlang虚拟机还是处于运行状态
+此命令优先于其他管理操作（这些管理操作需要先停止RabbitMQ应用），比如rabbitmqctl reset
+
+rabbitmqctl start_app
+启动RabbitMQ应用。此命令典型的用途实在执行了其他管理操作之后，重新启动之前停止的RabbitMQ应用，比如rabbitmqctl reset
+
+rabbitmqctl reset
+将RabbitMQ节点充值还原到最初状态
+执行rabbitmqctl reset 命令前必须停止RabbitMQ应用（比如先执行rabbitmqctl stop_app）
+
+rabbitmqctl force_reset
+强制将RabbitMQ节点重置还原到最初状态。此命令不论当前管理数据库的状态和集群配置是什么，都会无条件地重置节点，只能在数据库或集群配置已损坏的情况下使用
+
+集群管理
+rabbitmqctl [-n nodename] join_cluster{cluster_node}[--ram]
+将节点加入指定集群中。在这个歌命令执行前需要停止RabbitMQ应用并重置节点
+-n nodename:指定需要操作的目标节点，例如：rabbit@node1
+cluster_node:需要加入的集群节点名，格式同上
+--ram:集群节点类型，两种类型：ram|disc,默认为disc
+ram：内存节点，所有的元数据都存储在内存中
+disc：磁盘节点，所有的元数据都存储在磁盘中
+
+rabbitmqctl cluster_status
+查看集群状态
+
+rabbitmqctl change_cluster_node_type{dic|ram}
+修改集群节点的类型，使用此命令前要停止RabbitMQ应用
+
+rabbitmqctl forget_cluster_node[--offline]
+将节点从集群中删除，允许离线执行
+
+rabbitmqctl update_cluster_nodes{clusternode}
+在集群中的节点应用启动前咨询clusternode节点的最新信息，并更新相应的集群信息。这个和join_cluster不同，它不加入集群
+
+rabbitmqctl force_boot
+确保节点可以启动，即使它不是最后一个关闭的节点
+
+rabbitmqctl set_cluster_name{name}
+设置集群名称。集群名称在客户端连接时会通报给客户端
+集群名称默认是集群中第一个节点的名称，通过这个命令可以重新设置
+
+RabbitMQ高可用集群方案
+RabbitMQ的Cluster模式分为两种：镜像模式、普通模式
+Cluster普通模式：
+通过join操作直接加入集群
+节点间通过元数据信息同步，缺点，节点崩溃，该节点数据信息将全部丢失
+元数据包含以下内容：
+队列元数据：队列的名称及属性
+交换器：交换器的名称及属性
+绑定关系元数据：交换器与队列或者交换器与交换器
+vhost:为vhost内的队列、交换器和绑定提供命名空间及安全属性间的绑定关系
+
+Cluster多机多节点部署
+多机多节点是指在每台机器中部署一个RabbitMQ服务节点，进而由多台机器组成一个RabbitMQ集群
+修改三台机器的/etc/hosts文件，添加IP地址与节点名的映射信息
+
+Cluster单机多节点部署
+由于某些因素限制，有时候不得不在单台物理机器上创建一个多RabbitMQ服务节点的集群。
+或者只想要实验性地验证集群的某些特性，也不需要浪费过多物理机器去实现
+
+Cluster镜像模式
+镜像模式的集群是在普通模式的基础上，通过policy来实现，使用镜像模式可以实现RabbitMQ的高可用方案
+ha-mode
+指明镜像队列的模式，有效值为all、exactly、nodes，默认为all
+ha-mode     ha-params       说明
+all         (empty)         队列镜像到集群类所有节点
+exactly     count           队列镜像到集群内指定数量的节点。如果集群内节点数少于此值，队列将镜像到所有节点。如果大于此值，而且一个包含镜像的节点停止，则新的镜像不会在其他节点创建。
+nodes       nodename        队列镜像到指定节点，指定的节点不在集群中不会报错。当队列声明时，如果指定的节点不在线，则队列会被创建在客户端所连接的节点上。
+
+has-sync-mode
+队列中消息的同步方式，有效值为automatic何manual，默认是automatic
+
+Federation
+Federation插件的设计目标是使RabbitMQ在不同的Broker节点之间进行消息传递而无须建立集群，该功能在一下场景非常有用：
+各个节点运行在不同版本的Erlang和RabbitMQ上
+网络环境不稳定，比如广域网当中
+
+Shovel插件
+与Federation具备的数据转发功能类似
+优势：松耦合、支持广域网、高度定制
+
+
+
+
