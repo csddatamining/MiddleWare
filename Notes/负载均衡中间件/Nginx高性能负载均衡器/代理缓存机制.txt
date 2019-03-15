@@ -1,0 +1,42 @@
+Nginx缓存简介
+Nginx的http_proxy模块，可以实现类似于Squid的缓存功能
+Nginx对客户已经访问过的内容在Nginx服务器本地建立副本，这样在一段时间内再次访问该数据，就不需要Nginx服务器再次向后端服务器发出请求，
+所以能够减少Nginx服务器与后端服务器之间的网络流量，减轻网络拥塞，同事还能减少数据传输延迟，提高用户访问速度。
+同时，当后端服务器宕机时，Nginx服务器上的副本资源还能回应相关用户请求，提高后端服务器的健壮性
+
+对于缓存有以下问题：
+1.缓存文件放哪
+proxy_cache_path:Nginx使用该参数制定缓存位置
+proxy_cache:指定缓存名称
+proxy_cache_path有两个必填参数
+第一个参数为缓存目录
+第二个参数keys_zone指定缓存名称和占用内存空间的大小
+
+2.如何制定哪些请求被缓存
+1）默认缓存所有get和head方法的请求结果，缓存的key默认使用请求字符串
+2）自定义key
+3）指定请求至少被发送了多少次以上时才缓存，可以防止低频请求被缓存
+proxy_cache_min_uses 5;
+4）指定哪些方法的请求被缓存
+proxy_cache_methods GET HEAD POST;
+
+3.缓存的有效期
+默认长期留存，除非缓存总量超过限制。可指定缓存有效时间：
+1）响应码为200 302时，10分钟有效：
+proxy_cache_valid 200 302 10m;
+2)对于任何状态码，5分钟有效：
+proxy_cache_valid any 5m;
+
+4.对于某些请求，是否可以不走缓存
+proxy_cache_bypass:该指令响应来自原始服务器而不是缓存。
+例如proxy_cache_bypass $cookie_nocache $arg_nocache $arg_comment
+如果任何一个参数值部位空，或者不为0，nginx就不会查找缓存，直接进行代理转发
+
+网页缓存是由HTTP消息头中的"Cache-control"来控制的，常见的取值有private、no-cache、max-age、must-revalidate等，默认为private
+public：所有内容都将被缓存
+private：内容只缓存到私有缓存中
+no-cache:
+no-store:所有内容不会被缓存
+must-revalidation/proxy-revalidation:若缓存内容失效，请求必须发送到服务器/代理以进行重新认证
+max-age=XXX：缓存的内容在xxx秒后失效
+
