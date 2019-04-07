@@ -1,0 +1,94 @@
+Redis介绍
+Redis是一个开源的使用C语言编写、支持网络、可基于内存亦可持久化的日志型、Key-Value数据库，并提供多种语言的API。
+本质是客户端-服务端应用软件程序
+特点是使用简单、性能强悍、功能应用场景丰富。
+redis-server独立部署，可以被多个客户端进行访问，通过网络和客户端进行交互
+
+通用命令
+DEL key             用于在key存在时删除key
+DUMP key            序列化给定key，并返回被序列化的值
+EXIST key           检查给定key是否存在
+EXPIRE key seconds  为给定key设置过期时间，以秒计算
+TTL key             以秒为单位，返回给定key的剩余生存时间（TTL，time to live）
+TYPE key            返回key所储存的值的类型
+
+启动redis：./redis-server      默认端口6379
+查看占用端口的程序：netstat -naop |grep 6379
+关闭正在占用的程序：kill -9 进程号
+连接指定的redis服务器：./bin/redis-cli -h 127.0.0.1 -p 6379
+
+set hello
+get hello
+del hello
+exists hello
+type hello
+查看当前redis 存放了多少条数据：kes *
+
+数据结构-String
+String数据结构是简单的key-value类型，value其实不仅是String，也可以是数字
+使用场景：微博数，粉丝数（常规计数）
+常用命令：
+Get 获取指定key的值
+Set 设置指定key的值
+Incr 将key中存储的数字值增一
+Decr 将key中存储的数字值减一
+Mget 获取所有（一个或多个）给定key的值
+
+数据结构-List
+List就是链表，相信略有数据结构知识的人都应该能理解其结构。
+使用场景歌：微博的关注列表，粉丝列表
+常用命令：
+Lpush   将一个或多个值插入到列表头部
+Rpush   在列表中添加一个或多个值
+Lpop    移出并获取列表的第一个元素
+Rpo     移除列表的最后一个元素，返回值为移除的元素
+Lrange  获取所有（一个或多个）给定key的值
+
+数据结构-Set
+Set就是一个集合，集合的概念就是一堆不重复值的组合。利用redis提供的Set数据结构，可以存储一些集合性的数据
+使用场景：实现如共同关注、共同喜好、二度好友
+常用命令：
+Sadd    向集合中添加一个或多个成员
+Spop    移除并返回集合中的一个随机元素
+Smembers    返回集合中的所有成员
+Sunion      返回所有给定集合的并集
+
+数据结构-Sorted set
+Sorted set的使用场景与set类似，区别是set不是自动有序的，
+而sorted set可以通过用户额外提供一个优先级（score）的参数来为成员排序，并且是插入有序的，即自动排序。
+使用场景：排行榜、按照用户投票和时间排序
+常用命令：
+Zadd    向有序集合添加一个或多个成员，或者更新已存在成员的分数
+Zrange  通过索引区间返回有序集合中指定区间内的成员
+Zrem    移除有序集合中的一个或多个成员
+Zcard   获取有序集合的成员数
+
+数据结构-Hash
+Hash是一个string类型的field和value的映射表
+使用场景：存储部分变更数据，如用户信息
+常用命令：
+Hget    获取存储在哈希表中指定字段的值
+Hset    将哈希表key中的字段field的值设为value
+Hgetall 获取在哈希表中指定key的所有字段和值
+
+数据结构-GEO
+GEO 3.2版本开始对GEO（地理位置）的支持
+使用场景：LBS应用开发
+常用命令：
+GEOADD      增加地理位置的坐标，可以批量添加地理位置
+GEOIST      获取两个地理位置的距离
+GEOHASH     获取某个地理位置的gtohash值
+GEOPOS      获取指定位置的坐标，可以批量获取多个地理位置的坐标
+GEORDIUS    根据给定地理位置坐标获取指定范围内的地理位置集合（该命令的中心点由输入的经度和维度决定）
+GEORADIUSBYMEMBER   根据给定成员的位置获取指定范围内的位置信息集合（该命令的中心点是由给定的位置元素决定）
+
+数据结构-Stream
+Stream 5.0版本开始的新结构“流”
+使用场景：消费者生产者场景（类似MQ）
+常用命令：
+XADD    往指定的流中添加消息
+XLEN    stream流中的消息数量
+XDEL    删除流中的消息
+XRANGE  返回流中满足给定ID范围的消息
+XREAD   从一个或者多个流中读取消息
+XINFO   检索关于流和关联的消费者组的不同的信息
