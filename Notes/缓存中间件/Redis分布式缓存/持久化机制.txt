@@ -1,0 +1,48 @@
+持久化介绍
+Redis的数都存放在内存中，如果没有配置持久化，redis重启后数据就全部丢失了，于是需要开启redis的持久化功能，
+将数据保存到磁盘上，当redis重启后，可以从磁盘中恢复数据
+Memory---》持久化---》disk
+Memory《---恢复数据《---disk
+
+持久化的方式
+RDB持久化（内存快照）
+RDB持久化方式能够在指定的时间间隔对你的数据进行快照存储
+AOF（append only file）持久化
+AOF持久化方式记录每次对服务器写的操作，当服务器重启的时候会重新执行这些命令来恢复原始的数据
+
+RDB方式
+客户端直接通过命令BGSAVE或者SAVE来创建一个内存快照
+1.BGSAVE调用fork来创建一个子进程，子进程负责将快照写入磁盘，而父进程仍然继续处理命令
+2.SAVE执行SAVE命令过程中，不再响应其他命令
+在redis.conf中调整save配置选项，当在规定的时间内，Redis发生了写操作的个数满足条件会触发发生在BGSAVE命令
+#900秒之内至少一次写操作
+save 900 1
+#300秒之内至少发生10次写操作
+save 300 10
+#60秒内发生至少10000次
+save 60 10000
+
+RDB优点和缺点
+优点：对性能影响小
+RDB文件进行数据恢复比使用AOF要快很多
+缺点：
+同步时丢失数据
+如果数据集非常大且CPU不够强（比如单核CPU），Redis在fork子进程时可能会消耗相对较长的时间，影响Redis对外提供服务的能力
+
+AOF持久化方式
+开启AOF持久化（默认是不开启的）
+appendonly yes
+AOF策略调整
+#每次有数据修改发生时都会写入AOF文件
+appendfsync always
+#每秒钟同步一次，该策略为AOF的缺省策略
+appendfysnc everysec
+#从不同步。高效但是数据不会被持久化
+appendfsysnc no
+
+AOF优点和缺点
+优点：最安全，容灾，易读可修改
+缺点：文件体积大，性能消耗比RDB高，数据恢复速度比RDB慢
+
+启动redis并加载配置文件：./bin/redis-server conf/redis_6379.conf
+连接客户端：./bin/redis-cli
