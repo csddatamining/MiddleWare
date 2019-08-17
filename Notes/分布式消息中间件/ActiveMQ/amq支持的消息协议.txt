@@ -7,9 +7,17 @@ ActiveMQ支持的基础传输方式：VM、TCP、SSL、UDP、Peer、Multicast、
 以及更高级的Failover、Fanout、Discovery、ZeroConf方式
 
 ActiveMQ的协议连接配置
-在${ACTIVEMQ_HOMT}/conf/activemq.xml中，通过配置<transportConnectors>就可以使用多种传输方式
+在${ACTIVEMQ_HOME}/conf/activemq.xml中，通过配置<transportConnectors>就可以使用多种传输方式
+<transportConnectors>
+            <!-- DOS protection, limit concurrent connections to 1000 and frame size to 100MB -->
+            <transportConnector name="openwire" uri="tcp://0.0.0.0:61616?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600"/>
+            <transportConnector name="amqp" uri="amqp://0.0.0.0:5672?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600"/>
+            <transportConnector name="stomp" uri="stomp://0.0.0.0:61613?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600"/>
+            <transportConnector name="mqtt" uri="mqtt://0.0.0.0:1883?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600"/>
+            <transportConnector name="ws" uri="ws://0.0.0.0:61614?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600"/>
+</transportConnectors>
 
-常用的传输方式及配置
+ActiveMQ常用的传输方式及配置
 tcp、udp、ssl、nio、vm、http
 
 TCP
@@ -18,7 +26,39 @@ TCP配置格式
 tcp://hostname:port?key=value
 TCP配置参数说明
 在服务器端配置时，参数要以"transport."开头
+示例：tcp://localhost:61616?transport.threadName&transport.trace=false&transport.soTimeout=60000
 在客户端连接时，参数省略"transport."前缀
+示例：tcp://localhost:61616?threadName&trace=false&soTimeout=60000
+
+属性  默认值 描述
+backlog 5000    指定传输服务器套接字等待接收的最大连接数
+connectionTimeout   30000   超时时间，>=1时才有超时时间（单位为毫秒）为0表示没有超时，负值被忽略
+daemon  false   如果为true，则传输线程将以守护进程模式运行，将代理嵌入Spring容器或Web容器中时，请将次参数设置为true，以允许容器正确关闭
+dynamicManagement   false   如果为true，则可以通过JMX管理TransportLogger
+ioBufferSize    8*1024  协议解析使用的缓冲区大小（非TCP缓冲区）
+jmxPort 1099    （仅在客户端有效）JMX端口
+keepAlive   false   如果为true，则在Broker连接上启用TCP KeepAlive，以防止连接在TCP级别超时，这不要和InactivityMonitor使用的KeepAliveInfo消息混淆
+maximumConnections  Integer.MAX_VALUE   broker允许的最大socket数量
+socketBufferSize    64*1024 设置接受套接字读写缓冲区的大小（以字节为单位）
+soLinger    Integer.MIN_VALUE   当值>-1时，设置套接字的选项soLinger；设置为01时，将禁用soLinger套接字选项
+soTimeout   0   设置套接字的读取超时，毫秒单位
+soWriteTimeout  0   设置套接字的吸入超时，毫秒单位
+stackSize   0   设置服务端后台读取线程的堆栈大小，必须以128k的倍数指定；值为0表示忽略此参数
+startLogging    true    true，将传输信息TransportLogger对象写入日志，仅在trace=true的场景下生效
+tcpNoDelay  false   如果为true，则设置套接字的选项TCP_NODELAY,这会金融Nagle的小数据包传输算法。
+threadName  N/A     指定调用transport的线程名称。例如以服务器host命名，调试线程的时候可以看到
+trace       false   为true时，服务器记录传输发送的所有命令内容。log4j.logger.org.apache.activemq.transport.TransportLogger=DEBUG
+trafficClass    0   ip协议级别的服务质量参数。（0x02,0x04,0x08,0x10）
+useInactivityMonitor    true    false，则禁用InactivityMonitor，连接永远不会超时
+useKeepAlive    true    true，在空闲连接上发送KeepAliveInfo消息，防止它超时。false，指定的时间内没有接收到数据，连接超时。
+
+SSL
+需要一个安全连接的时候可以考虑使用SSL，使用与client和broker在公网的情况
+如使用aws云平台等
+http://activemq.apche.org/ssl-transport-reference.html
+SSL配置格式，可配置参数和TCP相同
+ssl://localhost:61616
+
 
 三、OpenWire协议
 Apache的一种跨语言协议，允许从不同的语言和平台访问ActiveMQ，是ActiveMQ4.X以后的版本默认的传输协议。
