@@ -58,9 +58,60 @@ SSL
 http://activemq.apche.org/ssl-transport-reference.html
 SSL配置格式，可配置参数和TCP相同
 ssl://localhost:61616
+SSL客户端配置
+JMS客户端需要使用ActiveMQSslConnectionFactory类创建连接，brokerUrl以ssl://开头，以下是Spring配置示例
+<bean id="AMQJMSConnectionFactory" class="org.apache.activemq.ActiveMQSslConnectionFactory">
+<property name="trustStore" value="/path/to/truststore.ts"/>
+<property name="trustStorePassword" value="password"/>
+<property name="keyStore" value="/path/to/keystore.ks"/>
+<property name="keyStorePassword" value="password"/>
+<property name="brokerURL" value="ssl://localhost:61616"/>
+<property name="userName" value="admin"/>
+<property name="password" value="admin"/>
+</bean>
+SSL主机名验证
+从ActiveMQ5.15.6开始，ActiveMQ开始支持TLS主机名验证，默认情况下客户端启用了该验证，而服务器端没有启用
+服务器端配置
+ssl://localhost:61616?transport.verifyHostName=true
+客户端配置
+ssl://localhost:61616?socket.verifyHostName=false
+或者
+ssl://localhost:61616?verifyHostName=false
+
+NIO
+使用Java的NIO方式对连接进行改进，因为NIO使用线程池，可以复用线程，所以可以用更少的线程维持更多的连接。
+如果有大量的客户端，或者性能瓶颈在网络传输上，可以考虑使用NIO的连接方式。ActiveMQ默认使用BIO
+NIO配置格式，可配置参数和TCP相同
+nio://hostname:port?key=value
+NIO是OpenWire协议的传输方式，其它协议，像AMQP、MQTT、Stomp，也有NIO的实现，通常在协议前缀中加“+nio来区别”
+示例：mqtt+nio://localhost:1883
+NIO传输线程使用情况配置
+从5.15.0开始，ActiveMQ支持调整NIO的传输线程，可以设置以下属性
+属性  默认值 描述
+org.apache.activemq.transport.nio.SelectorManager.corePoolSize  10  核心线程池线程数
+maximumPoolSize 1024    线程池最大线程数
+workQueueCapacity   0   线程池队列容量
+rejectWork  false   当达到容量时，允许使用IOException拒绝工作，以便可以保留现有的QOS
+NIO传输线程使用情况配置
+属性可以在${ACTIVEMQ_HOME}/bin/env中配置，示例：
+ACTIVEMQ_OPTS="$ACTIVEMQ_OPTS
+-Dorg.apache.activemq.transport.nio.SelectorManager.corePoolSize=2000
+-Dorg.apache.activemq.transport.nio.SelectorManager.maximumPoolSize=2000
+-Dorg.apache.activemq.transport.nio.SelectorManager.workQueueCapacity=1024"
+
+NIO SSL
+从ActiveMQ5.6版本开始，NIO可以支持和SSL搭配使用的传输连接
+NIO+SSL配置格式，可配置参数和TCP相同
+nio+ssl://0.0.0.0:61616
+
+UDP
+与面向连接，可靠的字节流服务的TCP不同，UDP是一个面向数据的简单传输连接，没有TCP的三次握手，所以性能大大强于TCP，
+但是以牺牲可靠性为前提。适用于丢失也无所谓的消息
+UDP配置格式
+udp://localhost:8123
 
 
-三、OpenWire协议
+三、OpenWire协议(TCP默认协议)
 Apache的一种跨语言协议，允许从不同的语言和平台访问ActiveMQ，是ActiveMQ4.X以后的版本默认的传输协议。
 客户端和服务端都通过前缀"wireFormat."表示
 
