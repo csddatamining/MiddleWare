@@ -109,6 +109,18 @@ UDP
 但是以牺牲可靠性为前提。适用于丢失也无所谓的消息
 UDP配置格式
 udp://localhost:8123
+UDP配置参数说明
+属性  默认值 描述
+trace   false   为true时，将会记录传输发送的所有命令
+useLocalHost    true    为true时，本机机器名被解析为localhost
+datagramSize    4*1024  指定数据报的大小
+
+HTTP(S)
+需要穿越防火墙，可以考虑使用HTTP(S)，但由于HTTP(S)是短连接，每次创建连接的成本较高，所以性能最差。通过XML传输数据
+HTTP配置格式
+http://localhost:8080?param1=val1&param2=val2
+HTTPS配置格式
+https://localhost:8080?param1=val1&param2=val2
 
 
 三、OpenWire协议(TCP默认协议)
