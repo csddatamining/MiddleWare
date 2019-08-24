@@ -122,10 +122,38 @@ http://localhost:8080?param1=val1&param2=val2
 HTTPS配置格式
 https://localhost:8080?param1=val1&param2=val2
 
+VM
+虚拟机协议（方法直调），使用场景是client和broker在同一个Java虚拟机内嵌的情况，无需网络通信的开销
+VM配置格式
+vm://brokerName?marshal=false&broker.persistent=false
+VM配置参数说明
+属性  默认值 描述
+create  true    如果不存在，则创建broker
+waitForStart    -1  如果>0,则表示等待代理启动的超时（毫秒单位）。值-1和0表示不等待。仅在ActiveMQ5.2+支持
+marshal false   强制发送的每个命令使用WireFormat进行格式转换
 
 三、OpenWire协议(TCP默认协议)
 Apache的一种跨语言协议，允许从不同的语言和平台访问ActiveMQ，是ActiveMQ4.X以后的版本默认的传输协议。
+http://activemq.apache.org/openwire-version-2-specification.html
+http://activemq.apache.org/wire-protocol.html
+OpenWire支持TCP、SSL、NIO、UDP、VM等传输方式，直接配置这些连接，就是使用的OpenWire协议，
+OpenWire有自己的配置参数，客户端和服务器端配置的参数名都通过前缀"wireFormat."表示
+http://activemq.apache.org/configuring-wire-formats.html
+示例：
+tcp://localhost:61616?wireFormat.cacheEnabled=false&wireFormat.tightEncodingEnabled=false
 客户端和服务端都通过前缀"wireFormat."表示
+OpenWire的配置参数说明
+属性  默认值 描述
+stackTraceEnabled   true    是否应该把已经发生并且跟踪到的堆栈异常，通过broker发送到客户端
+tcpNoDelayEnabled   true    socket的NoDelay参数
+cachedEnabled   true    如果不断重复的进行缓存，以便少编组（马上要进行的发送）发生
+tightEncodingEnabled    true    根据CPU使用情况，自动调整传输内容大小（压缩比例）
+prefixPacketSize    true    在每个包被编组钱（马上要被发送），每个包的大小是否应该作为前缀
+maxInactivityDuration   30000   连接的最大空闲时间，以毫秒为单位。broker服务会根据配置关闭超时的连接。同时也可以通过心跳机制来保持连接。值<=0则禁用活动连接的监测
+maxInactivityDurationInitialDelay   10000   连接建立之后，多久开始进行超时检测
+cacheSize   1024    如果能被缓存，那么这个规定了缓存的最大数量。此属性中在ActiveMQ的4.1中开始添加使用
+maxFrameSize    MAX_LONG    可发送最大帧大小，可以帮助防止OOM DOS攻击
+
 
 四、MQTT协议
 Message Queuing Telemetry Transport 消息队列遥测传输是IBM开发的一个即时通讯协议，已成为物联网通信标准
